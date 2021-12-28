@@ -2,7 +2,6 @@
 
 void dfs(struct Node* node, string code, unordered_map<int, string> &codes){
     if(node->currChar != '\0'){
-        //cout << node->currChar << ":" << code << "\n";
         codes[node->currChar] = code;
         return;
     }
@@ -19,9 +18,7 @@ struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cm
         struct Node* currJoin = new Node(0);
         struct Node* leftNode = heap.top();
         heap.pop();
-        cout << leftNode->currVal << ", ";
         struct Node* rightNode = !heap.empty() ? heap.top() : NULL;
-        cout << rightNode->currVal << ", ";
         heap.pop();
         currJoin->left = leftNode;
         currJoin->right = rightNode;
@@ -32,8 +29,35 @@ struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cm
             heap.push(currJoin);
         top = currJoin;
     }
-    cout << endl;
     return top;
+}
+
+void createFile(string encoded, string code){
+    ofstream encodedFile("compress.txt");
+    encodedFile << encoded;
+    u_int8_t curr;
+    int bitshift = 0;
+    for(int i = 0; i < code.size(); i++){
+        curr <<= 1;
+        if(code[i] == '1'){
+            curr |= 1;
+        }
+        cout << code[i];
+        bitshift++;
+        if(bitshift == 8){
+            encodedFile << curr;
+            bitshift = 0;
+        }
+    }
+    if(bitshift != 8){
+        while(bitshift <= 8){
+            curr <<= 1;
+            bitshift++;
+        }
+        encodedFile << curr;
+    }
+    
+    encodedFile.close();
 }
 
 string encode(string toCompress){
@@ -71,9 +95,14 @@ string encode(string toCompress){
     }
     encoded += first;
     encoded += second;
+    string code = "";
     for(char ch : toCompress){
-        encoded += codes[ch];
+        code += codes[ch];
     }
-    encoded += codes[PSEUDO_EOF];
+    code += codes[PSEUDO_EOF];
+    
+    cout << encoded << endl;
+    createFile(encoded, code);
+    encoded += code;
     return encoded;
 }   

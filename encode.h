@@ -5,6 +5,9 @@
 #include <vector>
 #include <unordered_map>
 #include <queue>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <ctype.h>
 #include <math.h>
 
@@ -35,5 +38,6 @@ void dfs(struct Node* node, string code, unordered_map<string, int> &decodes);
 string encode(string toCompress);
 string decode(string toDecode);
 unordered_map<string, int> decodeMap(string codes);
-string performDecode(unordered_map<string, int> decodes, string encoded);
+string performDecode(unordered_map<string, int> decodes, string code);
 struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cmp> &heap);
+void createFile(string encoded, string encoding);

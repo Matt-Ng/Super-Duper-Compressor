@@ -3,7 +3,7 @@
 int main(){
     string toCompress = "big bob bites bananas";
     string coded = encode(toCompress);
-    cout << coded << endl;
+    cout << endl;
     cout << decode(coded) << endl;
 
     return 0;
