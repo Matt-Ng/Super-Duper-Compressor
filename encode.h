@@ -18,17 +18,15 @@ struct Node {
     std::unique_ptr<Node> left;
     std::unique_ptr<Node> right;
 
-    Node(int val)
+    explicit Node(int val) noexcept : currVal{val}, currChar{'\0'}
     {
-        currVal = val;
-        currChar = '\0';
     }
 
     friend bool operator>(Node const& lhs, Node const& rhs);
 };
 
 struct cmp {
-    bool operator()(std::unique_ptr<Node>& first,
+    bool operator()(std::unique_ptr<Node> const& first,
                     std::unique_ptr<Node> const& second)
     {
         return first->currVal > second->currVal;
