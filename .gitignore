@@ -1,3 +1,5 @@
 *.o
 huffman
 a.out
+*.DS_Store
+*.txt
