@@ -1,7 +1,7 @@
 #include "encode.h"
 
 // performs depth first search on the huffman tree to generate codes for each character
-void dfs(struct Node* node, string code, unordered_map<string, int> &decodes){
+void dfs(Node* node, string code, unordered_map<string, int> &decodes){
     if(node->currChar != '\0'){
         decodes[code] = node->currChar;
         return;
@@ -15,7 +15,7 @@ void dfs(struct Node* node, string code, unordered_map<string, int> &decodes){
 
 // parses the frequency mapping to create the huffman tree and eventually traverse it
 unordered_map<string, int> decodeMap(string codes, int *r){
-    priority_queue<struct Node*, vector<struct Node*>, cmp> heap;
+    priority_queue<Node*, vector<Node*>, cmp> heap;
     unordered_map<string, int> decodes;
     int index = 0;
     string strNumChars = "";
@@ -34,18 +34,18 @@ unordered_map<string, int> decodeMap(string codes, int *r){
         int comma = codes.find(",", j);
         int key = codes[i];
         int val = stoi(codes.substr(j, comma));
-        struct Node* curr = new Node(val);
+        Node* curr = new Node(val);
         curr->currChar = key;
         heap.push(curr);
         j = comma + 1;
     }
 
     // fake EOF node to make sure garage values dont get decoded
-    struct Node* eof = new Node(1);
+    Node* eof = new Node(1);
     eof->currChar = PSEUDO_EOF;
     heap.push(eof);
 
-    struct Node* top = constructTree(heap);
+    Node* top = constructTree(heap);
     dfs(top, "", decodes);
     *r = j;
     return decodes;

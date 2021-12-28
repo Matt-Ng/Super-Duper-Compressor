@@ -8,16 +8,16 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <ctype.h>
-#include <math.h>
+#include <cctype>
+#include <cmath>
 
 using namespace std;
 
 struct Node {
     int currVal;
     int currChar;
-    struct Node *left;
-    struct Node *right;
+    Node *left;
+    Node *right;
 
     Node(int val){
         currVal = val;
@@ -28,17 +28,17 @@ struct Node {
 };
 
 struct cmp{
-    bool operator() (const struct Node *first, const struct Node *second){
+    bool operator() (const Node *first, const Node *second){
         return first->currVal > second->currVal;
     }
 };
 
-void dfs(struct Node* node, string code, unordered_map<int, string> &codes);
-void dfs(struct Node* node, string code, unordered_map<string, int> &decodes);
+void dfs(Node* node, string code, unordered_map<int, string> &codes);
+void dfs(Node* node, string code, unordered_map<string, int> &decodes);
 string encode(string source, string dest);
 string decode(string source, string dest);
 unordered_map<string, int> decodeMap(string codes);
 string performDecode(unordered_map<string, int> decodes, string code);
-struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cmp> &heap);
+Node* constructTree(priority_queue<Node*, vector<Node*>, cmp> &heap);
 void createFile(string encoded, string encoding);
 void createDecodedFile(string content);
