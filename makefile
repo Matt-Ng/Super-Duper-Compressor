@@ -13,3 +13,6 @@ encode.o: encode.cc encode.h
 	$(CC) $(CFLAGS) -c encode.cc
 decode.o: decode.cc encode.h
 	$(CC) $(CFLAGS) -c decode.cc
+
+clean:
+	rm huffman main.o encode.o decode.o
