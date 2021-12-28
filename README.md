@@ -6,4 +6,4 @@ setup: make huffman
 
 usage: ./huffman -[compress|c|d|decompress] sourceFilename destFilename
 
-Not guaranteed to compress your file depending on the content of the file (larger content scales better). Use at your own risk.
+Only tested to work on txt files. Not guaranteed to compress your file depending on the content of the file (larger content scales better). Use at your own risk.
