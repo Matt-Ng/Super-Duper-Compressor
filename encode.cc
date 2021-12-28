@@ -1,5 +1,6 @@
 #include "encode.h"
 
+// performs depth first search on the huffman tree to generate codes for each character
 void dfs(struct Node* node, string code, unordered_map<int, string> &codes){
     if(node->currChar != '\0'){
         codes[node->currChar] = code;
@@ -12,6 +13,7 @@ void dfs(struct Node* node, string code, unordered_map<int, string> &codes){
     dfs(node->right, code + '1', codes);
 }
 
+// construct the huffman tree with a priority queue/heap
 struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cmp> &heap){
     struct Node* top;
     while(!heap.empty()){
@@ -32,25 +34,29 @@ struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cm
     return top;
 }
 
-void createFile(string encoded, string code){
-    ofstream encodedFile("compress.txt");
+// creates parsable file parsable file that has enough info to rebuild huffman tree + the compressed binary code
+void createFile(string encoded, string code, string filename){
+    ofstream encodedFile(filename);
     encodedFile << encoded;
-    u_int8_t curr;
+
+    // data has to be appened to a file a byte at a time
+    u_int8_t curr = 0;
     int bitshift = 0;
     for(int i = 0; i < code.size(); i++){
         curr <<= 1;
         if(code[i] == '1'){
             curr |= 1;
         }
-        cout << code[i];
         bitshift++;
+        // when the byte has been fully repopulated, append to file
         if(bitshift == 8){
             encodedFile << curr;
             bitshift = 0;
         }
     }
+    // get the last remaining byte if it hasn't been appended to the file
     if(bitshift != 8){
-        while(bitshift <= 8){
+        while(bitshift < 8){
             curr <<= 1;
             bitshift++;
         }
@@ -60,7 +66,15 @@ void createFile(string encoded, string code){
     encodedFile.close();
 }
 
-string encode(string toCompress){
+string encode(string source, string dest){
+    ifstream fileToEncode(source);
+    if(!fileToEncode.is_open()){
+        cout << source << " does not exist" << endl;
+        exit(1);
+    }
+    stringstream strStream;
+    strStream << fileToEncode.rdbuf();
+    string toCompress = strStream.str();
     priority_queue<struct Node*, vector<struct Node*>, cmp> heap;
     unordered_map<int, int> charCounts;
 
@@ -68,20 +82,27 @@ string encode(string toCompress){
         charCounts[ch]++;
     }
     unordered_map<int, int>:: iterator it;
+
+    // create heap based on the number of occurances of a character
     for (it = charCounts.begin(); it != charCounts.end(); it++){
         struct Node* curr = new Node(it->second);
         curr->currVal = it->second;
         curr->currChar = it->first;
         heap.push(curr);
     }
+
+    // fake eof node added to heap
     struct Node* eof = new Node(1);
     eof->currChar = PSEUDO_EOF;
     heap.push(eof);
     charCounts[PSEUDO_EOF] = 1;
+
+    // tree constructed and huffman codes are generated with dfs
     struct Node* top = constructTree(heap);
     unordered_map<int, string> codes;
     dfs(top, "", codes);
 
+    // parsable string is created
     string encoded = to_string(charCounts.size() - 1);
     string first = "";
     string second = "";
@@ -99,10 +120,10 @@ string encode(string toCompress){
     for(char ch : toCompress){
         code += codes[ch];
     }
+    // fake eof code is added to denote when to stop reading file to prevent reading garbage bits when decompressing
     code += codes[PSEUDO_EOF];
-    
-    cout << encoded << endl;
-    createFile(encoded, code);
+    // file is created
+    createFile(encoded, code, dest);
     encoded += code;
     return encoded;
 }   

@@ -1,5 +1,6 @@
 #include "encode.h"
 
+// performs depth first search on the huffman tree to generate codes for each character
 void dfs(struct Node* node, string code, unordered_map<string, int> &decodes){
     if(node->currChar != '\0'){
         decodes[code] = node->currChar;
@@ -12,6 +13,7 @@ void dfs(struct Node* node, string code, unordered_map<string, int> &decodes){
     dfs(node->right, code + '1', decodes);
 }
 
+// parses the frequency mapping to create the huffman tree and eventually traverse it
 unordered_map<string, int> decodeMap(string codes, int *r){
     priority_queue<struct Node*, vector<struct Node*>, cmp> heap;
     unordered_map<string, int> decodes;
@@ -21,10 +23,13 @@ unordered_map<string, int> decodeMap(string codes, int *r){
         strNumChars += codes[index];
         index++;
     }
+
+    // get the value of how many characters there are to scan for
     int numChars = stoi(strNumChars);
     
     int j = index + numChars;
 
+    // set up heap relating to the number of occurances for a particular character
     for(int i = index; i < numChars + index; i++){
         int comma = codes.find(",", j);
         int key = codes[i];
@@ -34,6 +39,8 @@ unordered_map<string, int> decodeMap(string codes, int *r){
         heap.push(curr);
         j = comma + 1;
     }
+
+    // fake EOF node to make sure garage values dont get decoded
     struct Node* eof = new Node(1);
     eof->currChar = PSEUDO_EOF;
     heap.push(eof);
@@ -44,13 +51,15 @@ unordered_map<string, int> decodeMap(string codes, int *r){
     return decodes;
 }
 
+// turns the compressed binary code into the original content
 string performDecode(unordered_map<string, int> decodes, string bitsEncoded){
     string encoded = "";
+    // contract each bit from each byte from the compressed binary in the file
     for(int i = 0; i < bitsEncoded.size(); i++){
         int j = 0;
         string curr = "";
         uint8_t currByte = (uint8_t) bitsEncoded[i];
-        cout << "byte" << currByte;
+        // keep extracting the most significant bit, then second most, then third, etc
         while(j < 8){
             curr += ((currByte & 0x80)) ? '1' : '0';
             currByte <<= 1;
@@ -58,17 +67,18 @@ string performDecode(unordered_map<string, int> decodes, string bitsEncoded){
         }
         encoded += curr;
     }
-    cout << endl;
-    cout << encoded << endl;
+
     int l, r = 0;
     string resultant = "";
     string temp = "";
+    // build the string until we hit the PSEUDO_EOF
     while(r < encoded.size()){
         temp += encoded[r];
         if(decodes.count(temp)){
-            if(decodes[temp] == PSEUDO_EOF)
+            if(decodes[temp] == PSEUDO_EOF){
                 break;
-
+            }
+                
             resultant += decodes[temp];
             temp = "";
             l = r + 1;
@@ -78,23 +88,28 @@ string performDecode(unordered_map<string, int> decodes, string bitsEncoded){
     return resultant;
 }
 
-void createDecodedFile(string content){
-    ofstream decodedFile("uncompressed.txt");
-    decodedFile << content;
+void createDecodedFile(string decompressedContent, string dest){
+    ofstream decodedFile(dest);
+    decodedFile << decompressedContent;
     decodedFile.close();
 }
 
-string decode(string toDecode){
-    ifstream encodedFile("compress.txt");
+string decode(string source, string dest){
+    ifstream encodedFile(source);
+    if(!encodedFile.is_open()){
+        cout << source << " does not exist" << endl;
+        exit(1);
+    }
     stringstream strStream;
     strStream << encodedFile.rdbuf();
-    toDecode = strStream.str();
+    string toDecode = strStream.str();
+    // this value is used to separate the character frequency mappings from the compressed binary 
     int split;
+    // its found using this function where the pointer is passed in
     unordered_map<string, int> decodes = decodeMap(toDecode, &split);
     string bitsEncoded = toDecode.substr(split, toDecode.size() - 1);
-    cout << bitsEncoded << endl;
     string decompressedContent = performDecode(decodes, bitsEncoded);
     encodedFile.close();
-    createDecodedFile(decompressedContent);
+    createDecodedFile(decompressedContent, dest);
     return decompressedContent;
 }

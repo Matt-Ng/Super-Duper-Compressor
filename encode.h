@@ -35,9 +35,10 @@ struct cmp{
 
 void dfs(struct Node* node, string code, unordered_map<int, string> &codes);
 void dfs(struct Node* node, string code, unordered_map<string, int> &decodes);
-string encode(string toCompress);
-string decode(string toDecode);
+string encode(string source, string dest);
+string decode(string source, string dest);
 unordered_map<string, int> decodeMap(string codes);
 string performDecode(unordered_map<string, int> decodes, string code);
 struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cmp> &heap);
 void createFile(string encoded, string encoding);
+void createDecodedFile(string content);
