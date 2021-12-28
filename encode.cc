@@ -1,7 +1,7 @@
 #include "encode.h"
 
 // performs depth first search on the huffman tree to generate codes for each character
-void dfs(struct Node* node, string code, unordered_map<int, string> &codes){
+void dfs(Node* node, string code, unordered_map<int, string> &codes){
     if(node->currChar != '\0'){
         codes[node->currChar] = code;
         return;
@@ -14,13 +14,13 @@ void dfs(struct Node* node, string code, unordered_map<int, string> &codes){
 }
 
 // construct the huffman tree with a priority queue/heap
-struct Node* constructTree(priority_queue<struct Node*, vector<struct Node*>, cmp> &heap){
-    struct Node* top;
+Node* constructTree(priority_queue<Node*, vector<Node*>, cmp> &heap){
+    Node* top;
     while(!heap.empty()){
-        struct Node* currJoin = new Node(0);
-        struct Node* leftNode = heap.top();
+        Node* currJoin = new Node(0);
+        Node* leftNode = heap.top();
         heap.pop();
-        struct Node* rightNode = !heap.empty() ? heap.top() : NULL;
+        Node* rightNode = !heap.empty() ? heap.top() : NULL;
         heap.pop();
         currJoin->left = leftNode;
         currJoin->right = rightNode;
@@ -75,7 +75,7 @@ string encode(string source, string dest){
     stringstream strStream;
     strStream << fileToEncode.rdbuf();
     string toCompress = strStream.str();
-    priority_queue<struct Node*, vector<struct Node*>, cmp> heap;
+    priority_queue<Node*, vector<Node*>, cmp> heap;
     unordered_map<int, int> charCounts;
 
     for(char ch : toCompress){
@@ -85,20 +85,20 @@ string encode(string source, string dest){
 
     // create heap based on the number of occurances of a character
     for (it = charCounts.begin(); it != charCounts.end(); it++){
-        struct Node* curr = new Node(it->second);
+        Node* curr = new Node(it->second);
         curr->currVal = it->second;
         curr->currChar = it->first;
         heap.push(curr);
     }
 
     // fake eof node added to heap
-    struct Node* eof = new Node(1);
+    Node* eof = new Node(1);
     eof->currChar = PSEUDO_EOF;
     heap.push(eof);
     charCounts[PSEUDO_EOF] = 1;
 
     // tree constructed and huffman codes are generated with dfs
-    struct Node* top = constructTree(heap);
+    Node* top = constructTree(heap);
     unordered_map<int, string> codes;
     dfs(top, "", codes);
 
