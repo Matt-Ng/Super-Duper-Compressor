@@ -98,7 +98,6 @@ void createDecodedFile(string const& decompressedContent, string const& dest)
 {
     ofstream decodedFile(dest);
     decodedFile << decompressedContent;
-    decodedFile.close();
 }
 
 string decode(string const& source, string const& dest)

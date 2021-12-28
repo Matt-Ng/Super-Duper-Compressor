@@ -78,8 +78,6 @@ void createFile(string const& encoded, string const& code, string const& filenam
         bitshift++;
     }
     encodedFile << curr;
-
-    encodedFile.close();
 }
 
 string encode(string const& source, string const& dest)
