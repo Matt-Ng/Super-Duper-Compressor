@@ -1,44 +1,54 @@
-#define PSEUDO_EOF 256
-#include <iostream>
 #include <algorithm>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <queue>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <cctype>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <queue>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-using namespace std;
+constexpr int PSEUDO_EOF = 256;
 
 struct Node {
     int currVal;
     int currChar;
-    Node *left;
-    Node *right;
+    std::unique_ptr<Node> left;
+    std::unique_ptr<Node> right;
 
-    Node(int val){
+    Node(int val)
+    {
         currVal = val;
         currChar = '\0';
-        left = NULL;
-        right = NULL;
     }
+
+    friend bool operator>(Node const& lhs, Node const& rhs);
 };
 
-struct cmp{
-    bool operator() (const Node *first, const Node *second){
+struct cmp {
+    bool operator()(std::unique_ptr<Node>& first,
+                    std::unique_ptr<Node> const& second)
+    {
         return first->currVal > second->currVal;
     }
 };
 
-void dfs(Node* node, string code, unordered_map<int, string> &codes);
-void dfs(Node* node, string code, unordered_map<string, int> &decodes);
-string encode(string source, string dest);
-string decode(string source, string dest);
-unordered_map<string, int> decodeMap(string codes);
-string performDecode(unordered_map<string, int> decodes, string code);
-Node* constructTree(priority_queue<Node*, vector<Node*>, cmp> &heap);
-void createFile(string encoded, string encoding);
-void createDecodedFile(string content);
+void dfs(std::unique_ptr<Node> const& node, std::string const& code, std::unordered_map<int, std::string>& codes);
+
+void dfs(std::unique_ptr<Node> const& node, const std::string& code, std::unordered_map<std::string, int>& decodes);
+
+std::string encode(std::string const& source, std::string const& dest);
+
+std::string decode(const std::string& source, const std::string& dest);
+
+std::unordered_map<std::string, int> decodeMap(std::string codes);
+
+std::string performDecode(std::unordered_map<std::string, int> decodes, std::string code);
+
+std::unique_ptr<Node> constructTree(std::priority_queue<std::unique_ptr<Node>, std::vector<std::unique_ptr<Node>>, cmp>& heap);
+
+void createFile(std::string encoded, std::string encoding);
+
+void createDecodedFile(std::string content);
